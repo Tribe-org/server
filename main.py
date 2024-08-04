@@ -47,3 +47,41 @@ async def login_kakao():
 
     print(url)
     return RedirectResponse(url)
+
+
+class KakaoCallbackModel(BaseModel):
+    code: str
+
+
+class TokenModel(BaseModel):
+    access_token: str
+    refresh_token: str
+
+
+@app.post("/auth/kakao/callback")
+async def login_kakao_token(model: KakaoCallbackModel):
+    if not model.code:
+        raise HTTPException(status_code=400, detail="code is not a string")
+
+    url = "https://kauth.kakao.com/oauth/token"
+    headers = {"Content-Type": "application/x-www-form-urlencoded;charset=utf-8"}
+    data = {
+        "grant_type": "authorization_code",
+        "client_id": KAKAO_CLIENT_ID,
+        "redirect_uri": KAKAO_REDIRECT_URL,
+        "client_secret": KAKAO_CLIENT_SECRET,
+        "code": model.code,
+    }
+
+    async with httpx.AsyncClient() as client:
+        httpx_response = await client.post(url, headers=headers, data=data)
+        response = httpx_response.json()
+
+        # 에러 검사
+        if response.get("error"):
+            raise HTTPException(status_code=500, detail="에러 나중에 처리해야 함")
+
+    return TokenModel(
+        access_token=response.get("access_token"),
+        refresh_token=response.get("refresh_token"),
+    )
