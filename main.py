@@ -53,11 +53,6 @@ class KakaoCallbackModel(BaseModel):
     code: str
 
 
-class TokenModel(BaseModel):
-    access_token: str
-    refresh_token: str
-
-
 @app.post("/auth/kakao/callback")
 async def login_kakao_token(model: KakaoCallbackModel):
     if not model.code:
@@ -81,7 +76,27 @@ async def login_kakao_token(model: KakaoCallbackModel):
         if response.get("error"):
             raise HTTPException(status_code=500, detail="에러 나중에 처리해야 함")
 
-    return TokenModel(
-        access_token=response.get("access_token"),
-        refresh_token=response.get("refresh_token"),
-    )
+    return await auth_kakao_user_me(response.get("access_token"))
+
+
+@app.post("/auth/kakao/user/me")
+async def auth_kakao_user_me(access_token: str):
+    if not access_token:
+        raise HTTPException(status_code=400, detail="access_token이 필요합니다.")
+
+    print(f"토큰 {access_token}")
+
+    url = "https://kapi.kakao.com/v2/user/me"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        "Authorization": f"Bearer {access_token}",
+    }
+    params = {"secure_resource": True}
+
+    async with httpx.AsyncClient() as client:
+        httpx_response = await client.post(url, headers=headers, params=params)
+        response = httpx_response.json()
+
+        print(f"리스폰스 {response}")
+
+    return response
