@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+import subprocess
+
+def get_current_branch():
+    result = subprocess.run(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], capture_output=True, text=True)
+    return result.stdout.strip()
+
+def get_ticket(branch):
+    parts = branch.split('/')
+    if len(parts) > 1:
+        return parts[1].upper()
+    return ""
+
+def main():
+    commit_msg_file = sys.argv[1]
+
+    if not os.path.isfile(commit_msg_file):
+        print("Error: Commit message file not found.", file=sys.stderr)
+        sys.exit(1)
+
+    with open(commit_msg_file, 'r', encoding='utf-8') as file:
+        current_msg = file.read().strip()
+
+    if not current_msg:
+        print("Error: Commit message cannot be empty.", file=sys.stderr)
+        sys.exit(1)
+
+    current_branch = get_current_branch()
+    ticket = get_ticket(current_branch)
+
+    if not ticket or not ticket.startswith('TRIBE-'):
+        sys.exit(0)
+
+    # 대소문자를 구분하지 않고 '[TRIBE-'로 시작하는지 확인
+    if current_msg.lower().startswith('[tribe-'):
+        sys.exit(0)
+
+    new_commit_msg = f"[{ticket}] {current_msg}"
+
+    with open(commit_msg_file, 'w', encoding='utf-8') as file:
+        file.write(new_commit_msg)
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,7 @@
 # server
 
-# 개발 환경 실행 방법
+# 개발 시작하기 전 필수 셋팅
+## 개발 환경 실행 방법
 ### Mac
 ```bash
 source ./setup-dev.sh
@@ -22,4 +23,14 @@ pip list
 가상 환경 종료
 ```bash
 deactivate
+```
+
+## 커밋 환경 설정
+### Mac
+`setup-dev.sh` 파일에 이미 들어있음
+
+### Window
+```bash
+cp scripts/commit-msg .git/hooks/commit-msg
+chmod +x .git/hooks/commit-msg
 ```
