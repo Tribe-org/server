@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -32,8 +32,8 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/auth/kakao")
-async def login_kakao():
+@app.get("/auth/kakao/start")
+async def auth_kakao_start():
     kakao_auth_url = "https://kauth.kakao.com/oauth/authorize"
     params = {
         "response_type": "code",
@@ -44,18 +44,15 @@ async def login_kakao():
     query_string = urlencode(params)
 
     url = f"{kakao_auth_url}?{query_string}"
+    print(f"url: {url}")
 
-    print(url)
     return RedirectResponse(url)
 
 
-class KakaoCallbackModel(BaseModel):
-    code: str
-
-
-@app.post("/auth/kakao/callback")
-async def login_kakao_token(model: KakaoCallbackModel):
-    if not model.code:
+@app.get("/auth/kakao/callback")
+async def auth_kakao_callback(code: str):
+    print("들어옴")
+    if not code:
         raise HTTPException(status_code=400, detail="code is not a string")
 
     url = "https://kauth.kakao.com/oauth/token"
@@ -65,7 +62,7 @@ async def login_kakao_token(model: KakaoCallbackModel):
         "client_id": KAKAO_CLIENT_ID,
         "redirect_uri": KAKAO_REDIRECT_URL,
         "client_secret": KAKAO_CLIENT_SECRET,
-        "code": model.code,
+        "code": code,
     }
 
     async with httpx.AsyncClient() as client:
@@ -79,7 +76,6 @@ async def login_kakao_token(model: KakaoCallbackModel):
     return await auth_kakao_user_me(response.get("access_token"))
 
 
-@app.post("/auth/kakao/user/me")
 async def auth_kakao_user_me(access_token: str):
     if not access_token:
         raise HTTPException(status_code=400, detail="access_token이 필요합니다.")
