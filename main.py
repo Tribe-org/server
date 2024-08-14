@@ -44,14 +44,12 @@ async def auth_kakao_start():
     query_string = urlencode(params)
 
     url = f"{kakao_auth_url}?{query_string}"
-    print(f"url: {url}")
 
     return RedirectResponse(url)
 
 
 @app.get("/auth/kakao/callback")
 async def auth_kakao_callback(code: str):
-    print("들어옴")
     if not code:
         raise HTTPException(status_code=400, detail="code is not a string")
 
@@ -80,8 +78,6 @@ async def auth_kakao_user_me(access_token: str):
     if not access_token:
         raise HTTPException(status_code=400, detail="access_token이 필요합니다.")
 
-    print(f"토큰 {access_token}")
-
     url = "https://kapi.kakao.com/v2/user/me"
     headers = {
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
@@ -92,7 +88,5 @@ async def auth_kakao_user_me(access_token: str):
     async with httpx.AsyncClient() as client:
         httpx_response = await client.post(url, headers=headers, params=params)
         response = httpx_response.json()
-
-        print(f"리스폰스 {response}")
 
     return response
