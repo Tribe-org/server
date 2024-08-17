@@ -10,3 +10,5 @@ __pycache__/
 .secrets
 
 my_private_key.asc
+
+client_secret.json
