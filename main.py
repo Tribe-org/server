@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import RedirectResponse
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-from urllib.parse import urlencode
-from pydantic import BaseModel
-import httpx
 import os
+from urllib.parse import urlencode
+
+import httpx
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 load_dotenv()
 
@@ -35,6 +35,7 @@ async def root():
 @app.get("/auth/kakao/start")
 async def auth_kakao_start():
     kakao_auth_url = "https://kauth.kakao.com/oauth/authorize"
+
     params = {
         "response_type": "code",
         "client_id": KAKAO_CLIENT_ID,
