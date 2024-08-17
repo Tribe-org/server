@@ -34,3 +34,7 @@ deactivate
 cp scripts/commit-msg .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
 ```
+
+## 설치 패키지 (vscode 익스텐션)
+- Python (https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- isort (https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
