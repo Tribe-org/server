@@ -1,9 +1,10 @@
 import os
 from urllib.parse import urlencode
 
+import google_auth_oauthlib.flow
 import httpx
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
@@ -14,6 +15,7 @@ app = FastAPI()
 KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
 KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
 KAKAO_REDIRECT_URL = os.getenv("KAKAO_REDIRECT_URL")
+GOOGLE_REDIRECT_URL = os.getenv("GOOGLE_REDIRECT_URL")
 
 # CORS 설정 추가
 origins = ["http://localhost:8000"]
@@ -91,3 +93,37 @@ async def auth_kakao_user_me(access_token: str):
         response = httpx_response.json()
 
     return response
+
+
+@app.get("/auth/google/start")
+async def auth_google_start():
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+        "client_secret.json",
+        scopes=[
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "openid",
+        ],
+    )
+
+    flow.redirect_uri = GOOGLE_REDIRECT_URL
+
+    authorization_url, state = flow.authorization_url(
+        access_type="offline", include_granted_scopes="true", prompt="consent"
+    )
+
+    return RedirectResponse(url=authorization_url)
+
+
+@app.get("/auth/google/callback")
+async def auth_google_callback(
+    state: str, error: str | None = None, code: str | None = None
+):
+    if error == "access_denied":
+        raise HTTPException(status_code=500, detail=error)
+
+    if code is None:
+        raise HTTPException(status_code=500, detail="code does not exist.")
+
+    # print(request.url)
+    return RedirectResponse(url="http://localhost:3000")
