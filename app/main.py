@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from urllib.parse import urlencode
 
 import google_auth_oauthlib.flow
@@ -10,6 +11,18 @@ from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 load_dotenv()
+
+
+class Environment(str, Enum):
+    DEV = "DEV"
+    PROD = "PROD"
+
+
+env = os.getenv("ENV")
+
+if env == Environment.DEV:
+    # 개발 환경일 때는 구글 로그인 HTTP에서 가능하도록 설정
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 app = FastAPI()
 
@@ -137,5 +150,20 @@ async def auth_google_callback(request: Request):
 
     if code is None:
         raise HTTPException(status_code=500, detail="code does not exist.")
+
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+        "client_secret.json",
+        scopes=[
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "openid",
+        ],
+        state=state,
+    )
+
+    flow.redirect_uri = GOOGLE_REDIRECT_URL
+
+    authorization_response = str(request.url)
+    flow.fetch_token(authorization_response=authorization_response)
 
     return RedirectResponse(url="http://localhost:3000")
