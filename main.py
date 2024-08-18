@@ -3,6 +3,7 @@ from enum import Enum
 from urllib.parse import urlencode
 
 import google_auth_oauthlib.flow
+import googleapiclient.discovery
 import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -166,4 +167,16 @@ async def auth_google_callback(request: Request):
     authorization_response = str(request.url)
     flow.fetch_token(authorization_response=authorization_response)
 
+    await auth_google_user_me(flow.credentials)
+
     return RedirectResponse(url="http://localhost:3000")
+
+
+async def auth_google_user_me(credentials):
+    service = googleapiclient.discovery.build("oauth2", "v2", credentials=credentials)
+    user_info = service.userinfo().get().execute()
+
+    # 유저 정보 출력 (로그에 출력)
+    print(f"User Info: {user_info}")
+
+    return user_info
