@@ -174,7 +174,4 @@ async def auth_google_user_me(credentials):
     service = googleapiclient.discovery.build("oauth2", "v2", credentials=credentials)
     user_info = service.userinfo().get().execute()
 
-    # 유저 정보 출력 (로그에 출력)
-    print(f"User Info: {user_info}")
-
     return user_info
