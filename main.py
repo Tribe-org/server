@@ -167,9 +167,7 @@ async def auth_google_callback(request: Request):
     authorization_response = str(request.url)
     flow.fetch_token(authorization_response=authorization_response)
 
-    await auth_google_user_me(flow.credentials)
-
-    return RedirectResponse(url="http://localhost:3000")
+    return await auth_google_user_me(flow.credentials)
 
 
 async def auth_google_user_me(credentials):
