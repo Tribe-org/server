@@ -7,11 +7,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from starlette.middleware.sessions import SessionMiddleware
 
 load_dotenv()
 
 app = FastAPI()
 
+APP_SECRET_KEY = os.getenv("APP_SECRET_KEY")
 KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
 KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
 KAKAO_REDIRECT_URL = os.getenv("KAKAO_REDIRECT_URL")
@@ -27,6 +29,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(SessionMiddleware, secret_key=APP_SECRET_KEY)
 
 
 @app.get("/")
@@ -96,7 +100,7 @@ async def auth_kakao_user_me(access_token: str):
 
 
 @app.get("/auth/google/start")
-async def auth_google_start():
+async def auth_google_start(request: Request):
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         "client_secret.json",
         scopes=[
@@ -112,18 +116,26 @@ async def auth_google_start():
         access_type="offline", include_granted_scopes="true", prompt="consent"
     )
 
+    request.session["state"] = state
+
     return RedirectResponse(url=authorization_url)
 
 
 @app.get("/auth/google/callback")
-async def auth_google_callback(
-    state: str, error: str | None = None, code: str | None = None
-):
+async def auth_google_callback(request: Request):
+    state = request.query_params.get("state")
+    error = request.query_params.get("error")
+    code = request.query_params.get("code")
+
+    # 저장한 state와 비교해 맞지 않으면 허용하지 않음
+    if state != request.session["state"]:
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    # 사용자가 로그인 취소한 경우
     if error == "access_denied":
         raise HTTPException(status_code=500, detail=error)
 
     if code is None:
         raise HTTPException(status_code=500, detail="code does not exist.")
 
-    # print(request.url)
     return RedirectResponse(url="http://localhost:3000")
