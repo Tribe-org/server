@@ -1,6 +1,14 @@
-import getpass
+import os
 import subprocess
-import sys
+
+from dotenv import load_dotenv
+
+# .env 파일에서 환경 변수를 불러옵니다.
+load_dotenv()
+
+# 환경 변수에서 GPG 비밀번호와 이메일을 가져옵니다.
+GPG_EMAIL = os.getenv("GPG_EMAIL")
+GPG_PASSWORD = os.getenv("GPG_PASSWORD")
 
 
 def get_gpg_key_by_email(email):
@@ -32,15 +40,11 @@ def get_gpg_key_by_email(email):
 
 
 def export_private_key(key_id):
-    max_attempts = 3  # 최대 시도 횟수
-    attempts = 0  # 현재 시도 횟수
+    if not GPG_PASSWORD:
+        print("\033[91mError: GPG_PASSWORD environment variable is not set.\033[0m")
+        return False
 
-    while attempts < max_attempts:
-        # 사용자로부터 GPG 비밀번호 입력받기 (비밀번호가 터미널에 표시되지 않음)
-        password = getpass.getpass(
-            f"Enter your GPG password (Attempt {attempts + 1}/{max_attempts}): "
-        )
-
+    try:
         # gpg --export-secret-keys 명령을 사용해 개인 키를 추출
         result = subprocess.run(
             [
@@ -48,7 +52,7 @@ def export_private_key(key_id):
                 "--pinentry-mode",
                 "loopback",
                 "--passphrase",
-                password,
+                GPG_PASSWORD,
                 "--export-secret-keys",
                 "--armor",
                 key_id,
@@ -67,22 +71,27 @@ def export_private_key(key_id):
             )
             return True
 
-        # 비밀번호가 맞지 않는 경우
-        print("\033[91mWrong password.\033[0m")
-        attempts += 1
+        # 비밀번호가 맞지 않거나 다른 문제가 발생한 경우
+        print(f"\033[91mError exporting private key: {result.stderr}\033[0m")
+        return False
 
-    # 시도 횟수를 초과한 경우
-    print("\033[91mMaximum attempts exceeded. Private key was not exported.\033[0m")
-    return False
+    except Exception as e:
+        print(f"\033[91mAn error occurred: {e}\033[0m")
+        return False
 
 
 def main():
-    # 사용자로부터 이메일 입력받기 (엔터를 누르면 입력 종료)
-    print("Enter the GPG email address. Press Enter when finished.")
-    email = sys.stdin.readline().strip()
+    # 환경변수에서 이메일을 불러옵니다.
+    if not GPG_EMAIL:
+        print("\033[91mError: GPG_EMAIL environment variable is not set.\033[0m")
+        return
+
+    print(
+        f"\033[94mStarting the process to extract the necessary private key for the project using email: {GPG_EMAIL}...\033[0m"
+    )
 
     # 해당 이메일로 GPG 키 검색
-    key_id = get_gpg_key_by_email(email)
+    key_id = get_gpg_key_by_email(GPG_EMAIL)
 
     if key_id:
         print(f"Found GPG key: {key_id}")
