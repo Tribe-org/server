@@ -53,6 +53,11 @@ pip  list
 deactivate
 ```
 
+### 실행 방법
+```bash
+docker-compose up --build
+```
+
 ## 설치 패키지 (vscode 익스텐션)
 
 - Python (https://marketplace.visualstudio.com/items?itemName=ms-python.python)
