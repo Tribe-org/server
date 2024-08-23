@@ -17,3 +17,8 @@ cp scripts/commit-msg .git/hooks/commit-msg
 
 # commit-msg 훅에 실행 권한 부여
 chmod +x .git/hooks/commit-msg
+
+python3 scripts/private_key.py
+
+# .env 파일 생성
+/bin/bash scripts/env.sh

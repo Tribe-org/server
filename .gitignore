@@ -8,3 +8,5 @@ __pycache__/
 .gitsecret/keys/random_seed
 !*.secret
 .secrets
+
+my_private_key.asc
