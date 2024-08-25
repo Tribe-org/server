@@ -1,9 +1,11 @@
+import os
+import secrets
+from urllib.parse import urlencode
+
+import httpx
+from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
-from urllib.parse import urlencode
-import httpx
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -14,14 +16,19 @@ NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
 NAVER_REDIRECT_URL = os.getenv("NAVER_REDIRECT_URL")
 
 
+def generate_state():
+    return secrets.token_urlsafe(16)
+
+
 @router.get("/start")
 async def auth_naver_start():
     naver_auth_url = "https://nid.naver.com/oauth2.0/authorize"
+    state = generate_state()
     params = {
         "response_type": "code",
         "client_id": NAVER_CLIENT_ID,
         "redirect_uri": NAVER_REDIRECT_URL,
-        "state": "random_state_string",  # 실제 구현에서는 CSRF 방지를 위해 동적으로 생성
+        "state": state,
     }
 
     query_string = urlencode(params)
