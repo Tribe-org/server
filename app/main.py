@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 
+from naver_auth import router as naver_router
+
 load_dotenv()
 
 
@@ -45,6 +47,9 @@ app.add_middleware(
 )
 
 app.add_middleware(SessionMiddleware, secret_key=APP_SECRET_KEY)
+
+# 네이버 라우터 포함
+app.include_router(naver_router, prefix="/auth/naver")
 
 
 @app.get("/")
