@@ -13,3 +13,5 @@ class GenderType(enum.Enum):
     M = ("M",)
     # 여성
     F = "F"
+    # 확인불가
+    U = "U"
