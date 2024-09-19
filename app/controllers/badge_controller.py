@@ -1,10 +1,4 @@
-import os
-import secrets
-from urllib.parse import urlencode
-
-import httpx
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..core.database import get_db

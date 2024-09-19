@@ -14,7 +14,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from naver_auth import router as naver_router
 
 from .controllers.badge_controller import router as badge_router
-from .core.database import Base, SessionLocal, engine
+from .core.database import Base, engine
 
 load_dotenv()
 
