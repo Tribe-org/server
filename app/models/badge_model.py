@@ -1,10 +1,10 @@
 from sqlalchemy import VARCHAR, Column, Enum, Integer, Text
 
-from ..core.database import Base
-from ..enums.enum import MeetingType
+from app.core import Database
+from app.enums import MeetingType
 
 
-class Badge(Base):
+class Badge(Database.Base):
     __tablename__ = "badge"
 
     id = Column(Integer, primary_key=True)

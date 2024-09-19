@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from ..enums.enum import MeetingType
+from app.enums import MeetingType
 
 
 class BadgeSchema(BaseModel):

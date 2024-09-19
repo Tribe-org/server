@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from ..core.database import get_db
-from ..services.badge_service import BadgeService
+from app.core import get_db
+from app.services import BadgeService
 
-router = APIRouter()
+badge_router = APIRouter()
 
 
-@router.get("/badge/all")
+@badge_router.get("/badge/all")
 def get_all_badge(db: Session = Depends(get_db)):
     badge_service = BadgeService()
     return BadgeService().get_all_badge(db)

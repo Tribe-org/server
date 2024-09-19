@@ -1,33 +1,27 @@
-import os
 import secrets
 from urllib.parse import urlencode
 
 import httpx
-from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 
-load_dotenv()
+from app.core import Config
 
-router = APIRouter()
-
-NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
-NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
-NAVER_REDIRECT_URL = os.getenv("NAVER_REDIRECT_URL")
+naver_router = APIRouter()
 
 
 def generate_state():
     return secrets.token_urlsafe(16)
 
 
-@router.get("/start")
+@naver_router.get("/start")
 async def auth_naver_start():
     naver_auth_url = "https://nid.naver.com/oauth2.0/authorize"
     state = generate_state()
     params = {
         "response_type": "code",
-        "client_id": NAVER_CLIENT_ID,
-        "redirect_uri": NAVER_REDIRECT_URL,
+        "client_id": Config.NAVER_CLIENT_ID,
+        "redirect_uri": Config.NAVER_REDIRECT_URL,
         "state": state,
     }
 
@@ -37,7 +31,7 @@ async def auth_naver_start():
     return RedirectResponse(url)
 
 
-@router.get("/callback")
+@naver_router.get("/callback")
 async def auth_naver_callback(code: str, state: str):
     if not code:
         raise HTTPException(status_code=400, detail="code is not provided")
@@ -46,9 +40,9 @@ async def auth_naver_callback(code: str, state: str):
     headers = {"Content-Type": "application/x-www-form-urlencoded;charset=utf-8"}
     data = {
         "grant_type": "authorization_code",
-        "client_id": NAVER_CLIENT_ID,
-        "client_secret": NAVER_CLIENT_SECRET,
-        "redirect_uri": NAVER_REDIRECT_URL,
+        "client_id": Config.NAVER_CLIENT_ID,
+        "client_secret": Config.NAVER_CLIENT_SECRET,
+        "redirect_uri": Config.NAVER_REDIRECT_URL,
         "code": code,
         "state": state,
     }
