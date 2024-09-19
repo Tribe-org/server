@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from ..enums.enum import MeetingType
 
 
-class Badge(BaseModel):
+class BadgeSchema(BaseModel):
     id: int
     name: str
     description: str
