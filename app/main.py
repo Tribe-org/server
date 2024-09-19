@@ -13,6 +13,8 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from naver_auth import router as naver_router
 
+from .core.database import engine
+
 load_dotenv()
 
 
