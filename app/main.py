@@ -13,7 +13,13 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from naver_auth import router as naver_router
 
+from .controllers.badge_controller import router as badge_router
+from .core.database import Base, engine
+
 load_dotenv()
+
+# 데이터베이스 설정
+Base.metadata.create_all(bind=engine)
 
 
 class Environment(str, Enum):
@@ -50,6 +56,7 @@ app.add_middleware(SessionMiddleware, secret_key=APP_SECRET_KEY)
 
 # 네이버 라우터 포함
 app.include_router(naver_router, prefix="/auth/naver")
+app.include_router(badge_router, prefix="/v1")
 
 
 @app.get("/")
