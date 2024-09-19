@@ -6,3 +6,10 @@ class MeetingType(enum.Enum):
     CONTINUOUS = "continuous"
     # 미션형
     MISSION = "mission"
+
+
+class GenderType(enum.Enum):
+    # 남성
+    M = ("M",)
+    # 여성
+    F = "F"
