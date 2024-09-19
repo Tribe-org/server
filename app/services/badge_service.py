@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from ..repositories.badge_repository import BadgeRepository
+from app.repositories import BadgeRepository
 
 
 class BadgeService:
