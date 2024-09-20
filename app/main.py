@@ -23,7 +23,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(SessionMiddleware, secret_key=Config.APP_SECRET_KEY)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=Config.APP_SECRET_KEY,
+    # 1시간 후 세션 만료
+    max_age=1000 * 3.6,
+)
 
 # 라우트 설정
 app.include_router(main_router, prefix="/v1")
