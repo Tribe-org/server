@@ -35,6 +35,5 @@ async def auth_callback(code: str, state: str, db: Session = Depends(get_db)):
     # 네이버 회원정보 가져오기
     user = await naver_service.user_me(access_token)
 
-    print(f"유저?? {user}")
     # 회원가입 진행
     user_service.sign_up(db, user)
