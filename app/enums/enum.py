@@ -10,7 +10,7 @@ class MeetingType(enum.Enum):
 
 class GenderType(enum.Enum):
     # 남성
-    M = ("M",)
+    M = "M"
     # 여성
     F = "F"
     # 확인불가

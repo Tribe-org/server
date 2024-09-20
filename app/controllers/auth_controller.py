@@ -1,12 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
 
-from app.services import NaverService
+from app.core import get_db
+from app.services import NaverService, UserService
 
 auth_router = APIRouter()
 
 
 naver_service = NaverService()
+user_service = UserService()
 
 
 @auth_router.get("/start")
@@ -16,7 +19,7 @@ def auth_start():
 
 
 @auth_router.get("/callback")
-async def auth_callback(code: str, state: str):
+async def auth_callback(code: str, state: str, db: Session = Depends(get_db)):
     if not code:
         raise HTTPException(status_code=400, detail="code is not provided")
     if not state:
@@ -29,4 +32,9 @@ async def auth_callback(code: str, state: str):
     if not access_token:
         raise HTTPException(status_code=400, detail="access_token이 필요합니다.")
 
-    return await naver_service.user_me(access_token)
+    # 네이버 회원정보 가져오기
+    user = await naver_service.user_me(access_token)
+
+    print(f"유저?? {user}")
+    # 회원가입 진행
+    user_service.sign_up(db, user)
