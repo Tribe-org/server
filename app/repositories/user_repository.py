@@ -14,7 +14,7 @@ class UserRepository:
         """
         return db.query(User).filter(User.email == email).count() > 0
 
-    def sign_up(self, db: Session, user_info: auth.NaverUserDTO):
+    def sign_up(self, db: Session, user_info: user.UserDTO):
         """
         네이버 회원정보를 가지고 트라이브 회원으로 가입합니다.
         :return: 가입한 회원 정보 (user.UserDTO)
@@ -22,8 +22,6 @@ class UserRepository:
 
         # TODO 나중에 업데이트 필요
         undefined_user_info = {
-            "nickname": "닉네임",
-            "birthday": datetime.now(),
             "service_agreement": False,  # 기본 동의 처리 예시
             "privacy_consent": False,  # 기본 동의 처리 예시
             "age_consent": False,  # 기본 동의 처리 예시
@@ -34,6 +32,8 @@ class UserRepository:
             name=user_info.name,
             gender=user_info.gender,
             provider="naver",
+            nickname=user_info.nickname,
+            birthday=user_info.birthday or None,
             **undefined_user_info
         )
 

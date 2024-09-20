@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core import get_db
-from app.dtos import naver
+from app.dtos import naver, user
 from app.services import NaverService, UserService
 
 auth_router = APIRouter()
@@ -65,3 +65,11 @@ def get_naver_user_info(code: str, request: Request):
         )
 
     return naver.NaverUserInfoDTO(**naver_user_info)
+
+
+@auth_router.post("/sign-up")
+def sign_up(user_info: user.UserDTO, db: Session = Depends(get_db)):
+    # 회원가입 진행
+    new_tribe_user = user_service.sign_up(db, user_info)
+
+    return new_tribe_user
