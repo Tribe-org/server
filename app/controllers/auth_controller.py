@@ -33,7 +33,9 @@ async def auth_callback(code: str, state: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="access_token이 필요합니다.")
 
     # 네이버 회원정보 가져오기
-    user = await naver_service.user_me(access_token)
+    naver_user_info = await naver_service.user_me(access_token)
 
     # 회원가입 진행
-    user_service.sign_up(db, user)
+    new_tribe_user = user_service.sign_up(db, user_info=naver_user_info)
+
+    return new_tribe_user
