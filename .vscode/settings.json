@@ -8,5 +8,9 @@
         "source.organizeImports": "always"
     },
   },
-  "isort.args":["--profile", "black"],
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
+  "discord.enabled": true,
 }
