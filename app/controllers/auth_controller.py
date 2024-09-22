@@ -46,17 +46,24 @@ async def auth_callback(
 
     # 회원 정보가 없으면 세션에 로그인 정보 저장 후, 회원가입 페이지로 리디렉션
     if not user_exist:
-        request.session[code] = naver_user_info.model_dump()
+        request.session[code] = naver.NaverUserInfoWithEmailAndNameDTO(
+            **naver_user_info.model_dump()
+        ).model_dump()
 
         params = {"code": code}
         query_string = urlencode(params)
-        url = f"/signup?{query_string}"
+        url = f"http://localhost:3000/signup?{query_string}"
 
         return RedirectResponse(url, status_code=301)
 
 
 @auth_router.post("/naver/user_info")
-def get_naver_user_info(code: str, request: Request):
+def get_naver_user_info(dto: naver.NaverUserInfoWithCodeDTO, request: Request):
+    code = dto.code
+
+    if not code:
+        raise HTTPException(status_code=400, detail="code가 필요합니다.")
+
     naver_user_info = request.session.get(code)
 
     if not naver_user_info:
@@ -64,7 +71,9 @@ def get_naver_user_info(code: str, request: Request):
             status_code=400, detail="세션이 만료되었거나 유효하지 않습니다."
         )
 
-    return naver.NaverUserInfoDTO(**naver_user_info)
+    # 정보를 읽었으면 세션에서 코드 제거
+    request.session.pop(code)
+    return naver.NaverUserInfoWithEmailAndNameDTO(**naver_user_info)
 
 
 @auth_router.post("/sign-up")

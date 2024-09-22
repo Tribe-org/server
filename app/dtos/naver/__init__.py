@@ -1,3 +1,3 @@
-from .naver_dto import NaverUserInfoDTO
+from .naver_dto import NaverUserInfoWithCodeDTO, NaverUserInfoWithEmailAndNameDTO
 
-__all__ = ["NaverUserInfoDTO"]
+__all__ = ["NaverUserInfoWithEmailAndNameDTO", "NaverUserInfoWithCodeDTO"]
