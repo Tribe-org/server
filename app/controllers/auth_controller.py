@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -46,9 +46,11 @@ async def auth_callback(
 
     # 회원 정보가 없으면 세션에 로그인 정보 저장 후, 회원가입 페이지로 리디렉션
     if not user_exist:
-        request.session[code] = naver.NaverUserInfoWithEmailAndNameDTO(
-            **naver_user_info.model_dump()
-        ).model_dump()
+        # request.session[code] = naver.NaverUserInfoWithEmailAndNameDTO(
+        #     **naver_user_info.model_dump()
+        # ).model_dump()
+        # 네이버 회원 정보를 세션에 저장
+        request.session[code] = naver_user_info.model_dump()
 
         params = {"code": code}
         query_string = urlencode(params)
@@ -64,7 +66,7 @@ def get_naver_user_info(dto: naver.NaverUserInfoWithCodeDTO, request: Request):
     if not code:
         raise HTTPException(status_code=400, detail="code가 필요합니다.")
 
-    naver_user_info = request.session.get(code)
+    naver_user_info: naver.NaverUserDTO = request.session.get(code)
 
     if not naver_user_info:
         raise HTTPException(
@@ -77,8 +79,11 @@ def get_naver_user_info(dto: naver.NaverUserInfoWithCodeDTO, request: Request):
 
 
 @auth_router.post("/sign-up")
-def sign_up(user_info: user.UserDTO, db: Session = Depends(get_db)):
+def sign_up(
+    email: str = Form(...), name: str = Form(...), db: Session = Depends(get_db)
+):
+    user_info = user.UserDTO(email=email, name=name)
     # 회원가입 진행
-    new_tribe_user = user_service.sign_up(db, user_info)
+    new_tribe_user = user_service.sign_up(db, **user_info)
 
     return new_tribe_user

@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.dtos import auth, user
+from app.dtos import naver, user
 from app.repositories import UserRepository
 
 

@@ -5,12 +5,14 @@ from pydantic import BaseModel
 from app.enums import GenderType
 
 
-class NaverUserDTO(BaseModel):
+class NaverUserSchema(BaseModel):
     id: str
-    age: Optional[str] = None
-    gender: GenderType = GenderType.U
     email: str
     name: str
+    birthday: str
+    birthyear: int
+    gender: GenderType
+    age: Optional[str] = None
 
     class Config:
         use_enum_values = True

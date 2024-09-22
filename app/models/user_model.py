@@ -9,6 +9,7 @@ class User(Database.Base):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, index=True)
+    uid = Column(String, primary_key=True)
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -17,7 +18,6 @@ class User(Database.Base):
     )
     email = Column(String, nullable=True, default="")
     name = Column(String, nullable=True, default="")
-    nickname = Column(String, nullable=True)
     birthday = Column(DateTime(timezone=True), nullable=True)
     service_agreement = Column(Boolean, nullable=True, default=False)
     privacy_consent = Column(Boolean, nullable=True, default=False)
@@ -28,3 +28,4 @@ class User(Database.Base):
     introduction = Column(Text, nullable=True)
     refresh_token = Column(String, nullable=True)
     gender = Column(Enum(GenderType), nullable=False, default=GenderType.M)
+    deactivated = Column(Boolean, default=False)
