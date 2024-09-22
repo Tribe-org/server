@@ -12,7 +12,7 @@ app = FastAPI()
 
 
 # CORS 설정 추가
-origins = ["http://localhost:8000"]
+origins = [Config.CLIENT_URL]
 
 # 미들웨어 설정
 app.add_middleware(
@@ -27,7 +27,7 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=Config.APP_SECRET_KEY,
     # 1시간 후 세션 만료
-    max_age=1000 * 3.6,
+    max_age=3600,
 )
 
 # 라우트 설정
