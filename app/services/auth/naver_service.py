@@ -1,4 +1,8 @@
+from fastapi import HTTPException
+
 from app.core import Config
+from app.dtos import naver
+from app.enums import GenderType
 from app.repositories import NaverRepository
 from app.utils import generate_state
 
@@ -39,4 +43,12 @@ class NaverService(AuthService):
         url = "https://openapi.naver.com/v1/nid/me"
         headers = {"Authorization": f"Bearer {access_token}"}
 
-        return await naver_repository.user_me(url, headers)
+        response = await naver_repository.user_me(url, headers)
+
+        # 성공
+        if response["resultcode"] == "00":
+            user_data = response["response"]
+            user_data["gender"] = GenderType(user_data["gender"])
+            return naver.NaverUserDTO(**user_data)
+        else:
+            raise HTTPException(status_code=500, detail="회원 정보를 불러올 수 없음")

@@ -1,3 +1,3 @@
-from .enum import MeetingType
+from .enum import GenderType, MeetingType
 
-__all__ = ["MeetingType"]
+__all__ = ["MeetingType", "GenderType"]
