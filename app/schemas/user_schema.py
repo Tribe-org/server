@@ -8,7 +8,7 @@ from app.enums import GenderType
 
 
 class UserSchema(BaseModel):
-    id: int
+    id: Optional[int]
     uid: str
     created_at: Optional[datetime] = Field(
         default_factory=lambda: datetime.now(timezone.utc)
@@ -16,9 +16,10 @@ class UserSchema(BaseModel):
     updated_at: Optional[datetime] = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-    email: Optional[str] = Field(default="")
-    name: Optional[str] = Field(default="")
-    birthday: Optional[datetime] = None
+    email: str = Field(default="")
+    name: str = Field(default="")
+    birthday: str
+    birthyear: int
     service_agreement: bool = False
     privacy_consent: bool = False
     age_consent: bool = False
