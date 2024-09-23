@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 from typing import Optional
-from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -8,7 +7,7 @@ from app.enums import GenderType
 
 
 class UserSchema(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     uid: str
     created_at: Optional[datetime] = Field(
         default_factory=lambda: datetime.now(timezone.utc)
@@ -18,8 +17,7 @@ class UserSchema(BaseModel):
     )
     email: str = Field(default="")
     name: str = Field(default="")
-    birthday: str
-    birthyear: int
+    birthday: datetime
     service_agreement: bool = False
     privacy_consent: bool = False
     age_consent: bool = False

@@ -1,8 +1,6 @@
-from datetime import datetime
-
 from sqlalchemy.orm import Session
 
-from app.dtos import naver, user
+from app.dtos import user
 from app.models import User
 
 
@@ -14,31 +12,13 @@ class UserRepository:
         """
         return db.query(User).filter(User.email == email).count() > 0
 
-    def sign_up(self, db: Session, user_info: user.UserDTO):
+    def sign_up(self, db: Session, user_model: User):
         """
         네이버 회원정보를 가지고 트라이브 회원으로 가입합니다.
-        :return: 가입한 회원 정보 (user.UserDTO)
+        :return: 가입한 회원 정보
         """
 
-        # TODO 나중에 업데이트 필요
-        undefined_user_info = {
-            "service_agreement": False,  # 기본 동의 처리 예시
-            "privacy_consent": False,  # 기본 동의 처리 예시
-            "age_consent": False,  # 기본 동의 처리 예시
-        }
-
-        new_user = User(
-            email=user_info.email,
-            name=user_info.name,
-            gender=user_info.gender,
-            provider="naver",
-            nickname=user_info.nickname,
-            birthday=user_info.birthday or None,
-            **undefined_user_info
-        )
-
-        db.add(new_user)
+        db.add(user_model)
         db.commit()
-        db.refresh(new_user)
 
-        return user.UserDTO.model_validate(new_user)
+        return True

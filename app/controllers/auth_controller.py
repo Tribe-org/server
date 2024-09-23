@@ -73,17 +73,28 @@ def get_naver_user_info(dto: naver.NaverUserInfoWithCodeDTO, request: Request):
             status_code=400, detail="세션이 만료되었거나 유효하지 않습니다."
         )
 
-    # 정보를 읽었으면 세션에서 코드 제거
-    request.session.pop(code)
     return naver.NaverUserInfoWithEmailAndNameDTO(**naver_user_info)
 
 
 @auth_router.post("/sign-up")
 def sign_up(
-    email: str = Form(...), name: str = Form(...), db: Session = Depends(get_db)
+    request: Request,
+    code: str = Form(...),
+    email: str = Form(...),
+    name: str = Form(...),
+    db: Session = Depends(get_db),
 ):
-    user_info = user.UserDTO(email=email, name=name)
+    naver_user_info: naver.NaverUserDTO = request.session.get(code)
+
+    if not naver_user_info:
+        raise HTTPException(
+            status_code=400, detail="세션이 만료되었거나 유효하지 않습니다."
+        )
+
     # 회원가입 진행
-    new_tribe_user = user_service.sign_up(db, **user_info)
+    new_tribe_user = user_service.sign_up(db, naver.NaverUserDTO(**naver_user_info))
+
+    # 회원가입이 끝났으면 세션 초기화
+    request.session.clear()
 
     return new_tribe_user
