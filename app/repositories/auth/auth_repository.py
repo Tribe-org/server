@@ -14,3 +14,8 @@ class AuthRepository:
         db.commit()
 
         return result > 0
+
+    def find_user_by_id(self, uid: str, db: Session):
+        result = db.query(User).filter(User.uid == uid).first()
+
+        return result
