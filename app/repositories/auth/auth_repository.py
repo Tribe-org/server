@@ -1,22 +1,16 @@
-from abc import ABC, abstractmethod
-from urllib.parse import urlencode
+from sqlalchemy.orm import Session
 
-import httpx
-from fastapi import HTTPException
+from app.models import User
 
 
-class AuthRepository(ABC):
-    @abstractmethod
-    def auth_start(self, auth_url, params):
-        """
-        OAuth 인증 시작 URL을 생성합니다.
+class AuthRepository:
 
-        :auth_url OAuth 인증을 시작하기 위한 주소
-        :params OAuth 인증에 필요한 파라미터
-        :return 완성된 인증 URL
-        """
-        pass
+    def sign_in(self, uid: str, refresh_token: str, db: Session):
+        result = (
+            db.query(User)
+            .filter(User.uid == uid)
+            .update({"refresh_token": refresh_token})
+        )
+        db.commit()
 
-    @abstractmethod
-    async def auth_callback(self, url, headers, data):
-        pass
+        return result > 0

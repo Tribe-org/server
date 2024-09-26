@@ -5,11 +5,12 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core import get_db
-from app.dtos import naver, user
-from app.services import NaverService, UserService
+from app.dtos import naver
+from app.services import AuthService, NaverService, UserService
 
 auth_router = APIRouter()
 
+auth_service = AuthService()
 naver_service = NaverService()
 user_service = UserService()
 
@@ -43,12 +44,25 @@ async def auth_callback(
     user_exist = user_service.user_exists(db, email=naver_user_info.email)
 
     # TODO 회원 정보가 있으면, 로그인 처리
+    if user_exist:
+        access_token, refresh_token = auth_service.sign_in(naver_user_info, db)
+
+        params = {"access_token": access_token}
+        query_string = urlencode(params)
+        url = f"http://localhost:3000/login?{query_string}"
+
+        response = RedirectResponse(url, status_code=301)
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            samesite="lax",
+        )
+
+        return response
 
     # 회원 정보가 없으면 세션에 로그인 정보 저장 후, 회원가입 페이지로 리디렉션
     if not user_exist:
-        # request.session[code] = naver.NaverUserInfoWithEmailAndNameDTO(
-        #     **naver_user_info.model_dump()
-        # ).model_dump()
         # 네이버 회원 정보를 세션에 저장
         request.session[code] = naver_user_info.model_dump()
 

@@ -6,12 +6,10 @@ from app.enums import GenderType
 from app.repositories import NaverRepository
 from app.utils import generate_state
 
-from .auth_service import AuthService
-
 naver_repository = NaverRepository()
 
 
-class NaverService(AuthService):
+class NaverService:
     def auth_start(self):
         naver_auth_url = "https://nid.naver.com/oauth2.0/authorize"
         state = generate_state()

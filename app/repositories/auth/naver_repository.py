@@ -3,11 +3,16 @@ from urllib.parse import urlencode
 import httpx
 from fastapi import HTTPException
 
-from .auth_repository import AuthRepository
 
-
-class NaverRepository(AuthRepository):
+class NaverRepository:
     def auth_start(self, auth_url, params):
+        """
+        OAuth 인증 시작 URL을 생성합니다.
+
+        :auth_url OAuth 인증을 시작하기 위한 주소
+        :params OAuth 인증에 필요한 파라미터
+        :return 완성된 인증 URL
+        """
         query_string = urlencode(params)
         url = f"{auth_url}?{query_string}"
 
