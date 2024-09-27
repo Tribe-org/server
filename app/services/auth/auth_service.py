@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.core import Config, EnvTypes
 from app.dtos import auth, naver
 from app.repositories import AuthRepository
-from app.utils import create_jwt_token, is_token_expired
+from app.utils import create_jwt_token, decode_token, is_token_expired
 
 ALGORITHM = "HS256"
 
@@ -24,7 +24,7 @@ class AuthService:
 
         # 개발 단계
         if Config.ENV is EnvTypes.DEV:
-            access_token_duration = timedelta(minutes=30)
+            access_token_duration = timedelta(seconds=10)
             refresh_token_duration = timedelta(days=1)
         elif Config.ENV is EnvTypes.PROD:
             access_token_duration = timedelta(days=1)
@@ -49,10 +49,8 @@ class AuthService:
         토큰 값이 유효한지 확인하는 함수입니다.
         """
         try:
-            payload = jwt.decode(token, Config.APP_SECRET_KEY, algorithms=[ALGORITHM])
+            payload = decode_token(token)
             uid: str = payload.get("sub")
-
-            print(f"uid: {uid}")
         except InvalidTokenError:
             raise InvalidTokenError
 
@@ -66,9 +64,12 @@ class AuthService:
 
         # refresh_token이 유효한지 확인
         refresh_token = user_info.refresh_token
-        refresh_token_payload = jwt.decode(
-            refresh_token, Config.APP_SECRET_KEY, algorithms=[ALGORITHM]
-        )
-        exp = payload.get("exp")
+
+        try:
+            refresh_token_payload = decode_token(refresh_token)
+        except InvalidTokenError:
+            raise InvalidTokenError
+
+        exp = refresh_token_payload.get("exp")
 
         return is_token_expired(exp)

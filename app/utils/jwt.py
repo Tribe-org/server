@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from jwt.exceptions import InvalidTokenError
 
 from app.core import Config
 
@@ -17,6 +16,10 @@ def create_jwt_token(data: dict, expires_delta: timedelta):
 
     encoded_jwt = jwt.encode(to_encode, Config.APP_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def decode_token(token: str):
+    return jwt.decode(token, Config.APP_SECRET_KEY, algorithms=[ALGORITHM])
 
 
 def is_token_expired(exp: int):

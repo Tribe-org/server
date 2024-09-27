@@ -115,7 +115,7 @@ def sign_up(
 
 
 @auth_router.post("/refresh-token")
-def refresh_token(token: auth.Token, request: Request, db: Session = Depends(get_db)):
+def refresh_token(token: auth.Token, db: Session = Depends(get_db)):
     """
     요청 정보에서 refresh_token을 받아와 access_token을 갱신하는 요청입니다.
     """
@@ -123,5 +123,6 @@ def refresh_token(token: auth.Token, request: Request, db: Session = Depends(get
 
     if is_expired:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="토큰이 만료되었습니다."
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="토큰이 유효하지 않거나 만료되었습니다.",
         )
