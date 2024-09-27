@@ -44,6 +44,23 @@ class AuthService:
 
         return access_token, refresh_token
 
+    def issue_access_token(self, refresh_token: str):
+        """
+        access_token을 발급하는 함수입니다.
+        """
+        try:
+            payload = decode_token(refresh_token)
+            uid = payload.get("sub")
+
+            data = {"sub": uid}
+            new_access_token = create_jwt_token(
+                data, Config.Token.ACCESS_TOKEN_DURATION
+            )
+
+            return new_access_token
+        except InvalidTokenError:
+            raise InvalidTokenError
+
     def validate_token(self, token: auth.Token, db: Session):
         """
         토큰 값이 유효한지 확인하는 함수입니다.
@@ -52,7 +69,7 @@ class AuthService:
             payload = decode_token(token)
             uid: str = payload.get("sub")
         except InvalidTokenError:
-            raise InvalidTokenError
+            return False
 
         user_info = self.auth_repository.find_user_by_id(uid, db)
 
@@ -68,7 +85,7 @@ class AuthService:
         try:
             refresh_token_payload = decode_token(refresh_token)
         except InvalidTokenError:
-            raise InvalidTokenError
+            raise False
 
         exp = refresh_token_payload.get("exp")
 
