@@ -7,6 +7,8 @@ load_dotenv()
 
 
 class Token:
+    ALGORITHM = "HS256"
+
     def __init__(self):
         env = os.getenv("ENV")
 
