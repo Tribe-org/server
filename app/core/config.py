@@ -3,6 +3,8 @@ import os
 
 from dotenv import load_dotenv
 
+from .token import Token
+
 load_dotenv()
 
 
@@ -19,3 +21,5 @@ class Config:
     NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
     NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
     NAVER_REDIRECT_URL = os.getenv("NAVER_REDIRECT_URL")
+
+    Token = Token()

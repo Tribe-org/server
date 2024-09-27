@@ -1,11 +1,11 @@
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core import get_db
-from app.dtos import naver
+from app.dtos import auth, naver
 from app.services import AuthService, NaverService, UserService
 
 auth_router = APIRouter()
@@ -112,3 +112,23 @@ def sign_up(
     request.session.clear()
 
     return new_tribe_user
+
+
+@auth_router.post("/refresh-token")
+def refresh_token(token: auth.Token, request: Request, db: Session = Depends(get_db)):
+    """
+    요청 정보에서 refresh_token을 받아와 access_token을 갱신하는 요청입니다.
+    """
+    is_expired = auth_service.validate_token(token=token.access_token, db=db)
+
+    if is_expired:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="토큰이 유효하지 않거나 만료되었습니다.",
+        )
+
+    # access_token 다시 발급하기
+    refresh_token = request.cookies.get("refresh_token")
+    new_access_token = auth_service.issue_access_token(refresh_token)
+
+    return {"access_token": new_access_token}
