@@ -2,13 +2,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.core import Config, database_bootstrap
+from app.core import Config, OpenAPI, database_bootstrap
 from app.routers.router import main_router
 
 # 데이터베이스 설정
 database_bootstrap()
 
 app = FastAPI()
+
+# 스웨거 설정
+app.openapi = OpenAPI(app).get_customized_openapi
 
 
 # CORS 설정 추가
