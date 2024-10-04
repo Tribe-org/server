@@ -6,13 +6,14 @@ from sqlalchemy.orm import Session
 
 from app.core import get_db
 from app.dtos import auth, naver
-from app.services import AuthService, NaverService, UserService
+from app.services import AuthService, NaverService, TokenService, UserService
 
-auth_router = APIRouter()
+auth_router = APIRouter(tags=["auth"])
 
 auth_service = AuthService()
 naver_service = NaverService()
 user_service = UserService()
+token_service = TokenService()
 
 
 @auth_router.get("/start")
@@ -115,7 +116,11 @@ def sign_up(
 
 
 @auth_router.post("/refresh-token")
-def refresh_token(token: auth.Token, request: Request, db: Session = Depends(get_db)):
+def refresh_token(
+    request: Request,
+    token: str = Depends(token_service.validate_token),
+    db: Session = Depends(get_db),
+):
     """
     요청 정보에서 refresh_token을 받아와 access_token을 갱신하는 요청입니다.
     """
