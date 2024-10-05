@@ -5,14 +5,17 @@ class OpenAPI:
     def __init__(self, app):
         self.app = app
         self.exclude_paths = [
-            "/refresh-token",
+            "/auth/start",
+            "/auth/callback",
+            "/auth/naver/user_info",
+            "/auth/sign-up",
         ]
 
     def is_in_exclude_path(self, path: str):
         for exclude_path in self.exclude_paths:
             if exclude_path in path:
-                return True
-        return False
+                return False
+        return True
 
     def get_customized_openapi(self):
         if self.app.openapi_schema:
