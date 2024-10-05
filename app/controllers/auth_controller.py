@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.core import get_db
-from app.dtos import auth, naver
+from app.dtos import naver
 from app.services import AuthService, NaverService, TokenService, UserService
 
 auth_router = APIRouter(tags=["auth"])
