@@ -1,39 +1,35 @@
-from datetime import timedelta
-
-import jwt
 from fastapi import HTTPException, status
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
-from app.core import Config, EnvTypes
+from app.core import Config, Token
 from app.dtos import auth, naver
 from app.repositories import AuthRepository
-from app.utils import create_jwt_token, decode_token, is_token_expired
+
+from .token_service import TokenService
 
 ALGORITHM = "HS256"
 
 
 class AuthService:
     def __init__(self):
+        self.token_service = TokenService()
         self.auth_repository = AuthRepository()
+        self.token = Token()
 
     def sign_in(self, naver_user_info: naver.NaverUserDTO, db: Session):
         """
         로그인 처리 로직
         """
 
-        # 개발 단계
-        if Config.ENV is EnvTypes.DEV:
-            access_token_duration = timedelta(seconds=10)
-            refresh_token_duration = timedelta(days=1)
-        elif Config.ENV is EnvTypes.PROD:
-            access_token_duration = timedelta(days=1)
-            refresh_token_duration = timedelta(days=7)
-
         data = {"sub": naver_user_info.id}
 
-        access_token = create_jwt_token(data, expires_delta=access_token_duration)
-        refresh_token = create_jwt_token(data, expires_delta=refresh_token_duration)
+        access_token = self.token_service.create_jwt_token(
+            data, expires_delta=self.token.ACCESS_TOKEN_DURATION
+        )
+        refresh_token = self.token_service.create_jwt_token(
+            data, expires_delta=self.token.REFRESH_TOKEN_DURATION
+        )
 
         is_signed_in = self.auth_repository.sign_in(
             uid=naver_user_info.id, refresh_token=refresh_token, db=db
@@ -49,11 +45,11 @@ class AuthService:
         access_token을 발급하는 함수입니다.
         """
         try:
-            payload = decode_token(refresh_token)
+            payload = self.token_service.decode_token(refresh_token)
             uid = payload.get("sub")
 
             data = {"sub": uid}
-            new_access_token = create_jwt_token(
+            new_access_token = self.token_service.create_jwt_token(
                 data, Config.Token.ACCESS_TOKEN_DURATION
             )
 
@@ -66,7 +62,7 @@ class AuthService:
         토큰 값이 유효한지 확인하는 함수입니다.
         """
         try:
-            payload = decode_token(token)
+            payload = self.token_service.decode_token(token)
             uid: str = payload.get("sub")
         except InvalidTokenError:
             return False
@@ -83,10 +79,10 @@ class AuthService:
         refresh_token = user_info.refresh_token
 
         try:
-            refresh_token_payload = decode_token(refresh_token)
+            refresh_token_payload = self.token_service.decode_token(refresh_token)
         except InvalidTokenError:
             raise False
 
         exp = refresh_token_payload.get("exp")
 
-        return is_token_expired(exp)
+        return self.token_service.is_token_expired(exp)
