@@ -1,4 +1,4 @@
-from urllib.parse import urlencode
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core import Config, get_db
 from app.dtos import naver
 from app.services import AuthService, NaverService, TokenService, UserService
+from app.utils import check_age, make_url
 
 auth_router = APIRouter(tags=["auth"])
 
@@ -38,8 +39,25 @@ async def auth_callback(
     if not access_token:
         raise HTTPException(status_code=400, detail="access_token이 필요합니다.")
 
+    generate_url = make_url(Config.CLIENT_URL)
+
     # 네이버 회원정보 가져오기
     naver_user_info = await naver_service.user_me(access_token)
+    birthday = datetime.strptime(
+        f"{naver_user_info.birthyear}-{naver_user_info.birthday}", "%Y-%m-%d"
+    )
+
+    # 사용자가 14세 미만이면 네이버 로그인을 다시 해제
+    if not check_age(birthday=birthday, age=14):
+        delete_result = await naver_service.delete_token(access_token)
+
+        # 네이버 연동 해제 성공 시
+        if delete_result:
+            params = {"message": "14세 미만은 가입할 수 없습니다."}
+            url = generate_url("/login", params=params)
+
+        response = RedirectResponse(url, status_code=301)
+        return response
 
     # 회원 정보를 조회
     user_exist = user_service.user_exists(db, email=naver_user_info.email)
@@ -48,8 +66,7 @@ async def auth_callback(
         access_token, refresh_token = auth_service.sign_in(naver_user_info, db)
 
         params = {"access_token": access_token}
-        query_string = urlencode(params)
-        url = f"{Config.CLIENT_URL}/login?{query_string}"
+        url = generate_url("/login", params=params)
 
         response = RedirectResponse(url, status_code=301)
         response.set_cookie(
@@ -58,19 +75,17 @@ async def auth_callback(
             httponly=True,
             samesite="lax",
         )
-
         return response
-
-    # 회원 정보가 없으면 세션에 로그인 정보 저장 후, 회원가입 페이지로 리디렉션
-    if not user_exist:
+    else:
+        # 회원 정보가 없으면 세션에 로그인 정보 저장 후, 회원가입 페이지로 리디렉션
         # 네이버 회원 정보를 세션에 저장
         request.session[code] = naver_user_info.model_dump()
 
         params = {"access_token": "", "code": code}
-        query_string = urlencode(params)
-        url = f"{Config.CLIENT_URL}/login?{query_string}"
+        url = generate_url("/login", params=params)
 
-        return RedirectResponse(url, status_code=301)
+        response = RedirectResponse(url, status_code=301)
+        return response
 
 
 @auth_router.post("/naver/user_info")
