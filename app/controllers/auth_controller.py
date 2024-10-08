@@ -44,7 +44,6 @@ async def auth_callback(
     # 회원 정보를 조회
     user_exist = user_service.user_exists(db, email=naver_user_info.email)
 
-    # TODO 회원 정보가 있으면, 로그인 처리
     if user_exist:
         access_token, refresh_token = auth_service.sign_in(naver_user_info, db)
 
@@ -67,9 +66,9 @@ async def auth_callback(
         # 네이버 회원 정보를 세션에 저장
         request.session[code] = naver_user_info.model_dump()
 
-        params = {"code": code}
+        params = {"access_token": "", "code": code}
         query_string = urlencode(params)
-        url = f"http://localhost:3000/signup?{query_string}"
+        url = f"http://localhost:3000/login?{query_string}"
 
         return RedirectResponse(url, status_code=301)
 
@@ -95,8 +94,6 @@ def get_naver_user_info(dto: naver.NaverUserInfoWithCodeDTO, request: Request):
 def sign_up(
     request: Request,
     code: str = Form(...),
-    email: str = Form(...),
-    name: str = Form(...),
     db: Session = Depends(get_db),
 ):
     naver_user_info: naver.NaverUserDTO = request.session.get(code)
@@ -107,7 +104,7 @@ def sign_up(
         )
 
     # 회원가입 진행
-    new_tribe_user = user_service.sign_up(db, naver.NaverUserDTO(**naver_user_info))
+    new_tribe_user = auth_service.sign_up(db, naver.NaverUserDTO(**naver_user_info))
 
     # 회원가입이 끝났으면 세션 초기화
     request.session.clear()
