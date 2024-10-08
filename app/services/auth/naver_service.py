@@ -50,3 +50,22 @@ class NaverService:
             return naver.NaverUserDTO(**user_data)
         else:
             raise HTTPException(status_code=500, detail="회원 정보를 불러올 수 없음")
+
+    async def delete_token(self, access_token: str):
+        url = "https://nid.naver.com/oauth2.0/token"
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+        params = {
+            "grant_type": "delete",
+            "client_id": Config.NAVER_CLIENT_ID,
+            "client_secret": Config.NAVER_CLIENT_SECRET,
+            "access_token": access_token,
+            "service_provider": "NAVER",
+        }
+
+        response = await naver_repository.delete_token(url, headers, params)
+
+        if response["result"] == "success":
+            return True
+        else:
+            return False

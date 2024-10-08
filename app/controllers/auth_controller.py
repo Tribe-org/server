@@ -1,3 +1,4 @@
+from datetime import datetime
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core import Config, get_db
 from app.dtos import naver
 from app.services import AuthService, NaverService, TokenService, UserService
+from app.utils import check_age
 
 auth_router = APIRouter(tags=["auth"])
 
@@ -40,6 +42,24 @@ async def auth_callback(
 
     # 네이버 회원정보 가져오기
     naver_user_info = await naver_service.user_me(access_token)
+    birthday = datetime.strptime(
+        f"{naver_user_info.birthyear}-{naver_user_info.birthday}", "%Y-%m-%d"
+    )
+
+    delete_result = await naver_service.delete_token(access_token)
+
+    # 사용자가 14세 미만이면 네이버 로그인을 다시 해제
+    if not check_age(birthday=birthday, age=14):
+        delete_result = await naver_service.delete_token(access_token)
+
+        # 네이버 연동 해제 성공 시
+        if delete_result:
+            params = {"message": "14세 미만은 가입할 수 없습니다."}
+            query_string = urlencode(params)
+            url = f"{Config.CLIENT_URL}/login?{query_string}"
+
+        response = RedirectResponse(url, status_code=301)
+        return response
 
     # 회원 정보를 조회
     user_exist = user_service.user_exists(db, email=naver_user_info.email)

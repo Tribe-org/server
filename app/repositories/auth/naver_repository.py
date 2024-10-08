@@ -34,3 +34,16 @@ class NaverRepository:
             response = httpx_response.json()
 
         return response
+
+    async def delete_token(self, url, headers, params):
+        async with httpx.AsyncClient() as client:
+            httpx_response = await client.post(url, headers=headers, params=params)
+            response = httpx_response.json()
+
+            if response.get("error"):
+                raise HTTPException(
+                    status_code=response.get("error"),
+                    detail=response.get("error_description"),
+                )
+
+        return response
