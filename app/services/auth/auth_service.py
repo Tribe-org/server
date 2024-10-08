@@ -66,7 +66,7 @@ class AuthService:
         ).model_dump(exclude_unset=True)
         user_model = User(**user_info)
 
-        is_signed_up = self.user_repository.sign_up(db, user_model)
+        is_signed_up = self.auth_repository.sign_up(db, user_model)
 
         if not is_signed_up:
             raise HTTPException(status_code=500, detail="회원가입에 실패했습니다.")
