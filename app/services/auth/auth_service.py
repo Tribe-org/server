@@ -3,8 +3,11 @@ from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
 from app.core import Config, Token
-from app.dtos import auth, naver
+from app.dtos import auth, naver, user
+from app.enums import GenderType
+from app.models import User
 from app.repositories import AuthRepository
+from app.utils import create_timestamptz
 
 from .token_service import TokenService
 
@@ -39,6 +42,36 @@ class AuthService:
             raise HTTPException(status_code=500, detail="로그인을 할 수 없습니다.")
 
         return access_token, refresh_token
+
+    def sign_up(self, db: Session, naver_user_info: naver.NaverUserDTO):
+        uid = naver_user_info.id
+
+        user_info = user.UserDTO(
+            uid=uid,
+            email=naver_user_info.email,
+            name=naver_user_info.name,
+            birthday=create_timestamptz(
+                birthyear=naver_user_info.birthyear, birthday=naver_user_info.birthday
+            ),
+            service_agreement=False,
+            privacy_consent=False,
+            age_consent=False,
+            marketing_agreement=False,
+            provider="naver",
+            gender=GenderType(naver_user_info.gender),
+            image_url=None,
+            introduction=None,
+            refresh_token=None,
+            deactivated=False,
+        ).model_dump(exclude_unset=True)
+        user_model = User(**user_info)
+
+        is_signed_up = self.user_repository.sign_up(db, user_model)
+
+        if not is_signed_up:
+            raise HTTPException(status_code=500, detail="회원가입에 실패했습니다.")
+
+        return user_info
 
     def issue_access_token(self, refresh_token: str):
         """
