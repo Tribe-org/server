@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.core import get_db
+from app.core import Config, get_db
 from app.dtos import naver
 from app.services import AuthService, NaverService, TokenService, UserService
 
@@ -49,7 +49,7 @@ async def auth_callback(
 
         params = {"access_token": access_token}
         query_string = urlencode(params)
-        url = f"http://localhost:3000/login?{query_string}"
+        url = f"{Config.CLIENT_URL}/login?{query_string}"
 
         response = RedirectResponse(url, status_code=301)
         response.set_cookie(
@@ -68,7 +68,7 @@ async def auth_callback(
 
         params = {"access_token": "", "code": code}
         query_string = urlencode(params)
-        url = f"http://localhost:3000/login?{query_string}"
+        url = f"{Config.CLIENT_URL}/login?{query_string}"
 
         return RedirectResponse(url, status_code=301)
 
