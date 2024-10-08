@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 
-from app.dtos import user
 from app.models import User
 
 
