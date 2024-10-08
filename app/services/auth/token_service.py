@@ -1,12 +1,11 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
-from sqlalchemy.orm import Session
 
-from app.core import Config, get_db
+from app.core import Config
 from app.repositories import AuthRepository
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -16,8 +15,21 @@ class TokenService:
     def __init__(self):
         self.auth_repository = AuthRepository()
 
+    def create_jwt_token(self, data: dict, expires_delta: timedelta):
+        to_encode = data.copy()
+
+        expire = datetime.now(timezone.utc) + expires_delta
+
+        to_encode.update(
+            {"iat": datetime.now(timezone.utc), "iss": "tribe", "exp": expire}
+        )
+
+        encoded_jwt = jwt.encode(
+            to_encode, Config.APP_SECRET_KEY, algorithm=Config.Token.ALGORITHM
+        )
+        return encoded_jwt
+
     def decode_token(self, token: str):
-        print(f"decode_token: {token}, {Config.Token.ALGORITHM}")
         return jwt.decode(
             token, Config.APP_SECRET_KEY, algorithms=[Config.Token.ALGORITHM]
         )
