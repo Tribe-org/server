@@ -127,7 +127,7 @@ def sign_up(
     return new_tribe_user
 
 
-@auth_router.post("/refresh-token")
+@auth_router.post("/token/refresh")
 def refresh_token(
     request: Request,
     token: str = Depends(token_service.validate_token),
@@ -136,7 +136,7 @@ def refresh_token(
     """
     요청 정보에서 refresh_token을 받아와 access_token을 갱신하는 요청입니다.
     """
-    is_expired = auth_service.validate_token(token=token.access_token, db=db)
+    is_expired = auth_service.validate_token(token=token, db=db)
 
     if is_expired:
         raise HTTPException(
