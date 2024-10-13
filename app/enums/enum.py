@@ -15,3 +15,10 @@ class GenderType(enum.Enum):
     F = "F"
     # 확인불가
     U = "U"
+
+
+class FeedType(enum.Enum):
+    # 텍스트
+    TEXT = "text"
+    # 이미지
+    IMAGE = "image"
