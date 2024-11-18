@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.orm import Session
 
 from app.core import Config, get_db
+from app.core.database import session_scope
 from app.dtos import naver
 from app.services import AuthService, NaverService, TokenService, UserService
 from app.utils import check_age, make_url
@@ -27,6 +28,10 @@ def auth_start():
 async def auth_callback(
     code: str, state: str, request: Request, db: Session = Depends(get_db)
 ):
+    with session_scope() as session:
+        # session 시작
+        print(session)
+        pass
     if not code:
         raise HTTPException(status_code=400, detail="code is not provided")
     if not state:
@@ -119,7 +124,9 @@ def sign_up(
         )
 
     # 회원가입 진행
-    new_tribe_user = auth_service.sign_up(db, naver.NaverUserDTO(**naver_user_info))
+    new_tribe_user = auth_service.sign_up(
+        db, naver.NaverUserDTO(**naver_user_info)
+    )  # noqa
 
     # 회원가입이 끝났으면 세션 초기화
     request.session.clear()
@@ -153,7 +160,8 @@ def refresh_token(
 
 @auth_router.post("/token/validate")
 def validate_token(
-    token: str = Depends(token_service.validate_token), db: Session = Depends(get_db)
+    token: str = Depends(token_service.validate_token),
+    db: Session = Depends(get_db),  # noqa
 ):
     """
     헤더에서 access_token을 받아와 토큰이 유효한지 검사하는 요청입니다.
