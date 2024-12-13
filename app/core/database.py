@@ -19,16 +19,19 @@ class Database:
 
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
-        pool_pre_ping=True,  # 연결 유효성 미리 확인
-        pool_recycle=3600,  # 1시간(3600초)마다 연결 재생성
+        pool_pre_ping=True,
+        pool_recycle=3600,
     )
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
     Base = declarative_base()
+
+    @staticmethod
+    def get_session():
+        return Database.SessionLocal()
 
 
 def get_db():
-    db = Database.SessionLocal()
+    db = Database.get_session()
     try:
         yield db
     finally:
@@ -51,15 +54,12 @@ def db(func):
 @contextmanager
 def session_scope():
     """Provide a transactional scope around a series of operations."""
-
-    database = Database()
-    session = database.get_session()
+    session = Database.get_session()
     db_session_context.set(session)
     try:
         yield session
         session.commit()
     except Exception as exc:
-        # db 에러 체크
         print(exc)
         session.rollback()
         raise exc
