@@ -45,9 +45,9 @@ def bootstrap():
 def db(func):
     @wraps(func)
     def wrap_func(*args, **kwargs):
-        db_session = db_session_context.get()
-        return func(*args, **kwargs, session=db_session)
-
+        with session_scope() as session:
+            kwargs['db'] = session
+            return func(*args, **kwargs)
     return wrap_func
 
 
