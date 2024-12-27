@@ -60,7 +60,6 @@ def session_scope():
         yield session
         session.commit()
     except Exception as exc:
-        print(exc)
         session.rollback()
         raise exc
     finally:

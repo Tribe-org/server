@@ -8,8 +8,8 @@ from app.enums import GenderType
 class User(Database.Base):
     __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True, index=True)
-    uid = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    uid = Column(String, unique=True, nullable=False)
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

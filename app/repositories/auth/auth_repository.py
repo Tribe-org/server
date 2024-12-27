@@ -1,7 +1,5 @@
 from sqlalchemy.orm import Session
-
 from app.models import User
-
 
 class AuthRepository:
 
@@ -20,9 +18,13 @@ class AuthRepository:
         네이버 회원정보를 가지고 트라이브 회원으로 가입합니다.
         :return: 가입한 회원 정보
         """
+        try:
+            db.add(user_model)
+            db.commit()
 
-        db.add(user_model)
-        db.commit()
+        except Exception as e:
+            db.rollback()  # 예외 발생 시 롤백
+            raise
 
         return True
 
