@@ -12,3 +12,8 @@ __pycache__/
 my_private_key.asc
 
 client_secret.json
+node_modules
+
+awscliv2.zip
+aws
+.serverless

@@ -1,0 +1,79 @@
+service: tribe-server
+
+frameworkVersion: '4'
+
+package:
+  # packaging 시, 포함하고 제외할 파일 및 폴더를 파악합니다.
+  # !가 있으면 제외, 없으면 포함합니다.
+  patterns:
+    - '!poetry.lock'
+    - '!README.md'
+    - '!node_modules/**'
+    - '!.venv/**'
+    - '!.serverless/**'
+    - '!package.json'
+    - '!package-lock.json'
+    - '!aws/**'
+
+custom:
+  pythonRequirements:
+    useStaticCache: false # static cache와
+    useDownloadCache: false
+    dockerizePip: true
+    layer:
+      name: serverless-fastapi-deps
+      description: Dependencies of serverless-fastapi
+      compatibleRuntimes:
+        - python3.12
+
+provider:
+  name: aws
+  runtime: python3.12
+  stage: ${opt:stage, 'dev'} # -s 옵션을 받으면 사용하고, 그렇지 않으면 기본 dev 스테이지 사용
+  region: ap-northeast-2 # Seoul 리전
+  memorySize: 512 # optional, in MB, default is 1024
+  timeout: 30 # optional, in seconds, default is 6
+  environment:
+    STAGE: ${self:provider.stage}
+
+functions:
+  api:
+    handler: app.main.handler
+    layers:
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      # API 가 생성될때마다 추가하는게 좋습니다. (공통으로 사용하는 방법은 아직 해보지 않음)
+      - http:
+          method: GET
+          path: /
+      - http:
+          method: GET
+          path: /v1/docs
+          cors: true
+      - http:
+          method: POST
+          path: /v1/auth/naver
+      - http:
+          method: GET
+          path: /v1/auth/start
+      - http:
+          method: GET
+          path: /v1/auth/callback
+      - http:
+          method: POST
+          path: /v1/auth/naver/user_info
+      - http:
+          method: POST
+          path: /v1/auth/sign-up
+      - http:
+          method: POST
+          path: /v1/auth/token/refresh
+      - http:
+          method: POST
+          path: /v1/auth/token/validate
+
+
+plugins:
+  - serverless-python-requirements
+  - serverless-dotenv-plugin
+  - serverless-offline
