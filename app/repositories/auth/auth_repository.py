@@ -9,8 +9,6 @@ class AuthRepository:
             .filter(User.uid == uid)
             .update({"refresh_token": refresh_token})
         )
-        db.commit()
-
         return result > 0
 
     def sign_up(self, db: Session, user_model: User):
@@ -20,10 +18,7 @@ class AuthRepository:
         """
         try:
             db.add(user_model)
-            db.commit()
-
         except Exception as e:
-            db.rollback()  # 예외 발생 시 롤백
             raise
 
         return True
