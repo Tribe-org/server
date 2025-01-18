@@ -8,8 +8,8 @@ from fastapi.routing import APIRoute
 class LoggingAPIRoute(APIRoute):
     """API 요청 로깅 객체"""
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.api_logger = getLogger(name="api_logger")
 
     def get_route_handler(self) -> Callable:
@@ -56,11 +56,11 @@ class LoggingAPIRoute(APIRoute):
 
     def _response_log(self, request: Request, response: Response) -> None:
         """응답 로깅"""
-        extra: Dict[str, str] = {
+        extra: Dict[str, str | int] = {
             "httpMethod": request.method,
             "url": request.url.path,
             "statusCode": response.status_code,
-            "body": response.body.decode("UTF-8"),
+            "body": response.body.decode("UTF-8"),  # type: ignore
         }
 
         self.api_logger.info(f"response {extra}")

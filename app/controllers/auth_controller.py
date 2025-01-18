@@ -1,12 +1,14 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Form, HTTPException, Request, status
 from fastapi.responses import RedirectResponse, Response
-from datetime import datetime
+
 from app.core import Config
 from app.dtos import naver
 from app.services import AuthService, NaverService, TokenService, UserService
 from app.utils import check_age, make_url
 
-auth_router = APIRouter(tags=["auth"])
+auth_router = APIRouter(tags=["auth"], prefix="/v1/auth")
 
 auth_service = AuthService()
 naver_service = NaverService()
