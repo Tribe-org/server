@@ -1,15 +1,23 @@
-from fastapi import APIRouter, Request, status
-from fastapi.responses import RedirectResponse
+from dependency_injector.wiring import Provide
+from fastapi import APIRouter, Body, Depends, status
 
+from app.core.di_container import Container
 from app.core.route import LoggingAPIRoute
+from app.dtos.meeting.create_meeting_dto import (
+    CreateContinuousMeetingDTO,
+    CreateMissionMeetingDTO,
+)
+from app.services.meeting_service import MeettingService
 
 router = APIRouter(
-    prefix="/meeting",
+    prefix="/v1/meeting",
     tags=["미팅"],
     responses={
         status.HTTP_500_INTERNAL_SERVER_ERROR: {
             "description": "서버에서 에러가 발생했습니다.",
-            "content": {"application/json": {"example": {"detail": "Error Message"}}},
+            "content": {
+                "application/json": {"example": {"detail": "Error Message"}}
+            },
         },
     },
     include_in_schema=True,
@@ -17,7 +25,29 @@ router = APIRouter(
 )
 
 
-@router.post("")
-def create_meeting():
-    url = naver_service.auth_start()
-    return RedirectResponse(url)
+@router.post(
+    path="/mission",
+    summary="미션 모임 생성",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_mission_meeting(
+    meeting_service: MeettingService = Depends(
+        Provide[Container.meeting_service]
+    ),
+    meeting_dto: CreateMissionMeetingDTO = Body(...),
+):
+    pass
+
+
+@router.post(
+    path="/continuous",
+    summary="지속형 모임 생성",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_continuous_meeting(
+    meeting_service: MeettingService = Depends(
+        Provide[Container.meeting_service]
+    ),
+    meeting_dto: CreateContinuousMeetingDTO = Body(...),
+):
+    pass
