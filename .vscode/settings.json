@@ -5,13 +5,10 @@
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-        "source.organizeImports": "always",
-        "source.unusedImports": "always"
-    },
+      "source.organizeImports": "always",
+      "source.unusedImports": "always"
+    }
   },
-  "isort.args": [
-    "--profile",
-    "black"
-  ],
-  "discord.enabled": true,
+  "isort.args": ["--profile", "black"],
+  "discord.enabled": true
 }
