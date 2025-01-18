@@ -47,6 +47,7 @@ uritemplate = "4.1.1"
 urllib3 = "2.2.2"
 uvicorn = "0.30.6"
 mangum = "*"
+dependency-injector = "^4.45.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -57,7 +58,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-line-length = 100
+line-length = 80
 target-version = ['py39']
 include = '\.pyi?$'
 extend-exclude = '''
