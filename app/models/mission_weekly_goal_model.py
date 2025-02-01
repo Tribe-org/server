@@ -1,4 +1,6 @@
-from sqlalchemy import ForeignKey, Integer
+from datetime import UTC, datetime
+
+from sqlalchemy import DateTime, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core import Database
@@ -18,3 +20,13 @@ class MissionWeeklyGoal(Database.Base):
     day_of_week: Mapped[int] = mapped_column(
         Integer, nullable=False
     )  # 1-7 (월-일)
+    created_at = mapped_column(
+        DateTime, nullable=False, default=datetime.now(UTC)
+    )
+    updated_at = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC),
+    )
+    deleted_at = mapped_column(DateTime, nullable=True)

@@ -1,6 +1,7 @@
+from datetime import UTC, datetime
 from typing import Optional
 
-from sqlalchemy import Enum, Integer, String
+from sqlalchemy import DateTime, Enum, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core import Database
@@ -51,3 +52,13 @@ class Meeting(Database.Base):
     mission_meeting: Mapped["MissionMeeting"] = relationship(
         back_populates="meeting", uselist=False
     )
+    created_at = mapped_column(
+        DateTime, nullable=False, default=datetime.now(UTC)
+    )
+    updated_at = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC),
+    )
+    deleted_at = mapped_column(DateTime, nullable=True)

@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core import Database
@@ -38,3 +38,13 @@ class MissionMeeting(Database.Base):
     monthly_goals: Mapped[list["MissionMonthlyGoal"]] = relationship(
         back_populates="mission_meeting"
     )
+    created_at = mapped_column(
+        DateTime, nullable=False, default=datetime.now(UTC)
+    )
+    updated_at = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC),
+    )
+    deleted_at = mapped_column(DateTime, nullable=True)
