@@ -10,7 +10,6 @@ from app.core.enum import (
     MeetingPlace,
     MeetingTopic,
 )
-from app.models.continuous_meeting_model import ContinuousMeeting
 from app.models.mission_meeting_model import MissionMeeting
 
 
@@ -50,8 +49,5 @@ class Meeting(Database.Base):
 
     # 관계
     mission_meeting: Mapped["MissionMeeting"] = relationship(
-        back_populates="meeting", uselist=False
-    )
-    continuous_meeting: Mapped["ContinuousMeeting"] = relationship(
         back_populates="meeting", uselist=False
     )

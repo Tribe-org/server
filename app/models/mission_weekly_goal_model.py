@@ -1,11 +1,10 @@
 from sqlalchemy import ForeignKey, Integer
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core import Database
-from app.models.mission_meeting_model import MissionMeeting
 
 
-class MissionWeeklyGoal(Database.base):
+class MissionWeeklyGoal(Database.Base):
     __tablename__ = "mission_weekly_goals"
 
     id: Mapped[int] = mapped_column(
@@ -13,9 +12,6 @@ class MissionWeeklyGoal(Database.base):
     )
     mission_meeting_id: Mapped[int] = mapped_column(
         ForeignKey("mission_meetings.id"), nullable=False
-    )
-    mission_meeting: Mapped[MissionMeeting] = relationship(
-        back_populates="weekly_goals"
     )
 
     count: Mapped[int] = mapped_column(Integer, nullable=False)

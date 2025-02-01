@@ -4,7 +4,6 @@ from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core import Database
-from app.models.meeting_model import Meeting
 from app.models.mission_monthly_goal_model import MissionMonthlyGoal
 from app.models.mission_weekly_goal_model import MissionWeeklyGoal
 
@@ -18,7 +17,6 @@ class MissionMeeting(Database.Base):
     meeting_id: Mapped[int] = mapped_column(
         ForeignKey("meetings.id"), nullable=False
     )
-    meeting: Mapped[Meeting] = relationship(back_populates="mission_meeting")
 
     # 목표 관련
     start_date: Mapped[datetime] = mapped_column(nullable=False)
