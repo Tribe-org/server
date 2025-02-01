@@ -7,9 +7,6 @@ from app.dtos.meeting.create_meeting_dto import (
     MissionMeetingResponseDTO,
 )
 from app.models.meeting_model import Meeting
-from app.repositories.meeting.continuous_meeting_repository import (
-    IContinuousMeetingRepository,
-)
 from app.repositories.meeting.meeting_repository import IMeetingRepository
 from app.repositories.meeting.mission_meeting_repository import (
     IMissionMeetingRepository,
@@ -21,11 +18,9 @@ class IMeettingService(ABC):
         self,
         meeting_repo: IMeetingRepository,
         mission_repo: IMissionMeetingRepository,
-        countinuouns_repo: IContinuousMeetingRepository,
     ):
         self.meeting_repo = meeting_repo
         self.mission_repo = mission_repo
-        self.countinuouns_repo = countinuouns_repo
 
     @abstractmethod
     async def _create_meeting_entity_by_dto(
@@ -45,11 +40,9 @@ class MeettingService(IMeettingService):
         self,
         meeting_repo: IMeetingRepository,
         mission_repo: IMissionMeetingRepository,
-        countinuouns_repo: IContinuousMeetingRepository,
     ):
         self.meeting_repo = meeting_repo
         self.mission_repo = mission_repo
-        self.countinuouns_repo = countinuouns_repo
 
     async def _create_meeting_entity_by_dto(
         self, dto: CreateMissionMeetingDTO
