@@ -1,11 +1,14 @@
 from dependency_injector.wiring import Provide
 from fastapi import APIRouter, Body, Depends, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 from app.core.di_container import Container
 from app.core.route import LoggingAPIRoute
 from app.dtos.meeting.create_meeting_dto import (
     CreateContinuousMeetingDTO,
     CreateMissionMeetingDTO,
+    MissionMeetingResponseDTO,
 )
 from app.services.meeting_service import MeettingService
 
@@ -29,14 +32,21 @@ router = APIRouter(
     path="/mission",
     summary="미션 모임 생성",
     status_code=status.HTTP_201_CREATED,
+    response_model=MissionMeetingResponseDTO,
 )
-def create_mission_meeting(
+async def create_mission_meeting(
     meeting_service: MeettingService = Depends(
         Provide[Container.meeting_service]
     ),
-    meeting_dto: CreateMissionMeetingDTO = Body(...),
+    dto: CreateMissionMeetingDTO = Body(...),
 ):
-    pass
+    response: MissionMeetingResponseDTO = (
+        await meeting_service.create_mission_meeting(dto=dto)
+    )
+
+    return JSONResponse(
+        content=jsonable_encoder(response), status_code=status.HTTP_200_OK
+    )
 
 
 @router.post(
@@ -44,7 +54,7 @@ def create_mission_meeting(
     summary="지속형 모임 생성",
     status_code=status.HTTP_201_CREATED,
 )
-def create_continuous_meeting(
+async def create_continuous_meeting(
     meeting_service: MeettingService = Depends(
         Provide[Container.meeting_service]
     ),
