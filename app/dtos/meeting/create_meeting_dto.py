@@ -151,46 +151,6 @@ class CreateMissionMeetingDTO(BaseModel):
         )
 
 
-class CreateContinuousMeetingDTO(BaseModel):
-    topic: MeetingTopic = Field(
-        default=..., description="모임 주제"
-    )  # 모임 주제
-
-    place: MeetingPlace = Field(
-        default=..., description="모임 장소"
-    )  # 모임 장소
-
-    address: str | None = Field(
-        default=None, description="오프라인 모임 주소"
-    )  # 오프라인 모임 주소
-    detail_address: str | None = Field(
-        default=None, description="오프라인 모임 상세 주소"
-    )  # 오프라인 모임 상세 주소
-
-    thumbnail: str | None = Field(
-        default=None, description="모임 썸네일 이미지 URL"
-    )  # 모임 썸네일 이미지 URL
-
-    title: str = Field(default=..., description="모임 제목")  # 모임 제목
-    description: str = Field(
-        default=..., description="모임 소개글"
-    )  # 모임 소개글
-
-    # Conditions
-    conditions: MeetingConditions = Field(
-        default=..., description="모임 조건"
-    )  # 모임 조건
-
-    offline_date: date | None = Field(
-        default=None, description="오프라인 모임 날짜"
-    )  # 오프라인 모임 날짜
-    offline_time: time | None = Field(
-        default=None, description="오프라인 모임 시간"
-    )  # 오프라인 모임 시간
-
-    model_config = get_camel_model_config()
-
-
 class MissionGoalBaseResponse(BaseModel):
     id: int = Field(..., description="목표 ID")
     created_at: datetime = Field(..., description="생성 시각")

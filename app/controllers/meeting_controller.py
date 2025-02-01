@@ -6,7 +6,6 @@ from fastapi.responses import JSONResponse
 from app.core.di_container import Container
 from app.core.route import LoggingAPIRoute
 from app.dtos.meeting.create_meeting_dto import (
-    CreateContinuousMeetingDTO,
     CreateMissionMeetingDTO,
     MissionMeetingResponseDTO,
 )
@@ -47,17 +46,3 @@ async def create_mission_meeting(
     return JSONResponse(
         content=jsonable_encoder(response), status_code=status.HTTP_200_OK
     )
-
-
-@router.post(
-    path="/continuous",
-    summary="지속형 모임 생성",
-    status_code=status.HTTP_201_CREATED,
-)
-async def create_continuous_meeting(
-    meeting_service: MeettingService = Depends(
-        Provide[Container.meeting_service]
-    ),
-    meeting_dto: CreateContinuousMeetingDTO = Body(...),
-):
-    pass
