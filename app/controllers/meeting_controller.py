@@ -44,5 +44,5 @@ async def create_mission_meeting(
     )
 
     return JSONResponse(
-        content=jsonable_encoder(response), status_code=status.HTTP_200_OK
+        content=jsonable_encoder(response), status_code=status.HTTP_201_CREATED
     )
