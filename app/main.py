@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.core import Config, OpenAPI, database_bootstrap
 from app.routers.router import main_router
-from mangum import Mangum
 
 # 데이터베이스 설정
 database_bootstrap()
 
-app = FastAPI(docs_url="/v1/docs")
+app = FastAPI(docs_url="/v1/docs", openapi_url="/v1/openapi.json", root_path="/dev")
 
 # 스웨거 설정
 app.openapi = OpenAPI(app).get_customized_openapi
@@ -40,6 +40,7 @@ app.include_router(main_router, prefix="/v1")
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
 
 # AWS Lambda용 핸들러 설정
 handler = Mangum(app)
