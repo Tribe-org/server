@@ -16,6 +16,12 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+      APP_SECRET_KEY: ${{ secrets.APP_SECRET_KEY }}
+      CLIENT_URL: ${{ secrets.CLIENT_URL }}
+      NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+      NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+      NAVER_REDIRECT_URL: ${{ secrets.NAVER_REDIRECT_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout code
@@ -41,10 +47,6 @@ jobs:
       - name: Install Serverless Framework
         run: npm install -g serverless
 
-      # Serverless Framework 로그인
-      - name: Serverless Login
-        run: serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY --profile default
-
-      # Serverless 배포 실행
+      # 배포 실행
       - name: Deploy to AWS using Serverless
         run: sls deploy --stage $STAGE --region $AWS_REGION
