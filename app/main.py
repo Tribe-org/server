@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
@@ -6,10 +8,18 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.core import Config, OpenAPI, database_bootstrap
 from app.routers.router import main_router
 
+# 환경 변수로부터 스테이지를 가져와 root_path를 설정
+stage = os.getenv("STAGE", "dev")  # 기본값은 dev
+root_path = f"/{stage}"
+
 # 데이터베이스 설정
 database_bootstrap()
 
-app = FastAPI(docs_url="/v1/docs", openapi_url="/v1/openapi.json", root_path="/dev")
+app = FastAPI(
+    docs_url=f"{root_path}/v1/docs",
+    openapi_url=f"{root_path}/v1/openapi.json",
+    root_path=root_path,
+)
 
 # 스웨거 설정
 app.openapi = OpenAPI(app).get_customized_openapi
