@@ -13,6 +13,9 @@ jobs:
     env:
       AWS_REGION: ap-northeast-2
       STAGE: prod
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      SERVERLESS_API_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}  # API 키 추가
 
     steps:
       - name: Checkout code
@@ -38,9 +41,10 @@ jobs:
       - name: Install Serverless Framework
         run: npm install -g serverless
 
+      # Serverless Framework 로그인
+      - name: Serverless Login
+        run: serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY --profile default
+
       # Serverless 배포 실행
       - name: Deploy to AWS using Serverless
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: sls deploy --stage $STAGE --region $AWS_REGION
