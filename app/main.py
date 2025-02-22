@@ -33,14 +33,16 @@ async def lifespan(app: FastAPI):
     # Server Shut down Event
 
 
+# 데이터베이스 설정
+database_bootstrap()
 # FastAPI 앱 생성
 app = FastAPI(
+    lifespan=lifespan,
     docs_url="/v1/docs",
     openapi_url="/v1/openapi.json",
     root_path=f"/{stage_url}",  # URL 경로에는 소문자 사용
 )
-# 데이터베이스 설정
-database_bootstrap()
+
 
 
 # Swagger(OpenAPI) 명세 커스터마이징
