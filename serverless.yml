@@ -29,12 +29,18 @@ custom:
 provider:
   name: aws
   runtime: python3.12
-  stage: ${opt:stage, 'dev'} # -s 옵션을 받으면 사용하고, 그렇지 않으면 기본 dev 스테이지 사용
-  region: ap-northeast-2 # Seoul 리전
-  memorySize: 512 # optional, in MB, default is 1024
-  timeout: 30 # optional, in seconds, default is 6
+  stage: ${opt:stage, 'dev'}  # 기본 dev 스테이지 사용
+  region: ap-northeast-2  # 서울 리전
+  memorySize: 512  # 메모리 크기
+  timeout: 30  # 타임아웃 설정
   environment:
     STAGE: ${self:provider.stage}
+    APP_SECRET_KEY: ${env:APP_SECRET_KEY}  
+    CLIENT_URL: ${env:CLIENT_URL}
+    DATABASE_URL: ${env:DATABASE_URL}
+    NAVER_CLIENT_ID: ${env:NAVER_CLIENT_ID}
+    NAVER_CLIENT_SECRET: ${env:NAVER_CLIENT_SECRET}
+    NAVER_REDIRECT_URL: ${env:NAVER_REDIRECT_URL}
 
 functions:
   api:
@@ -49,6 +55,10 @@ functions:
       - http:
           method: GET
           path: /v1/docs
+          cors: true
+      - http:
+          method: GET
+          path: /v1/openapi.json
           cors: true
       - http:
           method: POST
@@ -71,9 +81,11 @@ functions:
       - http:
           method: POST
           path: /v1/auth/token/validate
+      - http:
+          method: GET
+          path: /v1/badge/all
 
 
 plugins:
   - serverless-python-requirements
-  - serverless-dotenv-plugin
   - serverless-offline
