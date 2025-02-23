@@ -32,10 +32,8 @@ class LoggingAPIRoute(APIRoute):
 
     def _has_json_body(self, request: Request) -> bool:
         """json 요청 여부 확인"""
-        if (
-            request.method in ("POST", "PUT", "PATCH")
-            and request.headers.get("content-type") == "application/json"
-        ):
+        content_type = request.headers.get("content-type", "")
+        if "application/json" in content_type:
             return True
         return False
 
@@ -48,9 +46,16 @@ class LoggingAPIRoute(APIRoute):
             "queryParams": request.query_params,
         }
 
-        if self._has_json_body(request):
+        if request.method in ("POST", "PUT", "PATCH"):
             request_body = await request.body()
-            extra["body"] = request_body.decode("UTF-8")
+            content_type = request.headers.get("content-type", "")
+            
+            if "application/json" in content_type:
+                extra["body"] = request_body.decode("UTF-8")
+            elif "multipart/form-data" in content_type:
+                extra["body"] = "<binary data>"
+            else:
+                extra["body"] = str(request_body)
 
         self.api_logger.info(f"request {extra}")
 

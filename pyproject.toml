@@ -48,6 +48,7 @@ urllib3 = "2.2.2"
 uvicorn = "0.30.6"
 mangum = "*"
 dependency-injector = "^4.45.0"
+supabase = "^2.13.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"

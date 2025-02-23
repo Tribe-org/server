@@ -1,7 +1,9 @@
 from dependency_injector.wiring import Provide
-from fastapi import APIRouter, Body, Depends, status
+from fastapi import APIRouter, Depends, Form, status, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+from datetime import datetime
+from fastapi import Body
 
 from app.core.di_container import Container
 from app.core.route import LoggingAPIRoute
@@ -10,6 +12,7 @@ from app.dtos.meeting.create_meeting_dto import (
     MissionMeetingResponseDTO,
 )
 from app.services.meeting_service import MeettingService
+from app.core.supabase import Supabase
 
 router = APIRouter(
     prefix="/v1/meeting",
@@ -25,6 +28,37 @@ router = APIRouter(
     include_in_schema=True,
     route_class=LoggingAPIRoute,
 )
+
+@router.post(
+    path="/image/upload",
+    summary="미팅 이미지 업로드",
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_meeting_image(
+    meeting_service: MeettingService = Depends(
+        Provide[Container.meeting_service]
+    ),
+    image: UploadFile = Form(..., media_type="multipart/form-data"),
+):
+    # 현재 시간을 기반으로 유니크한 파일 경로 생성
+    now = datetime.now()
+    file_path = f"tmp/{now.strftime('%Y%m%d_%H%M%S_%f')}{image.filename}"
+    
+    # 이미지 데이터 읽기
+    image_data = await image.read()
+    
+    # Supabase storage에 업로드
+    supabase = Supabase()
+    response = supabase.storage.from_('bucket_name').upload(
+        file_path,
+        image_data,
+        {'upsert': 'true'}
+    )
+    
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"file_path": file_path}
+    )
 
 
 @router.post(

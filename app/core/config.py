@@ -21,5 +21,7 @@ class Config:
     NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
     NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
     NAVER_REDIRECT_URL = os.getenv("NAVER_REDIRECT_URL")
+    SUPABASE_URL = os.getenv("SUPABASE_URL")
+    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
     Token = Token()

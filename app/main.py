@@ -1,21 +1,19 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from starlette.middleware.sessions import SessionMiddleware
-
 from app.core import Config, EnvTypes, OpenAPI, database_bootstrap
 from app.routers.router import main_router
-import os
 from fastapi.openapi.utils import get_openapi
-stage_env = Config.ENV.value
+
 # URL 경로에 사용하기 위해 소문자로 변환
-stage_url = stage_env.lower()
-
+stage_env = Config.ENV.value
 # 환경 변수에서 스테이지 가져오기 (대문자는 그대로 유지)
-
-
+stage_url = stage_env.lower()
+base_api_url=""
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,8 +31,6 @@ async def lifespan(app: FastAPI):
     # Server Shut down Event
 
 
-# 데이터베이스 설정
-database_bootstrap()
 # FastAPI 앱 생성
 app = FastAPI(
     lifespan=lifespan,
